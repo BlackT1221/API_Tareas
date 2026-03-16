@@ -1,0 +1,31 @@
+# --- Python & Django ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+ENV/
+env/
+.env
+db.sqlite3
+media/
+staticfiles/
+
+# --- Firebase & Credentials ---
+# Es CRUCIAL no subir estas llaves por seguridad
+serviceAccountKey.json
+*.pem
+*.key
+
+# --- IDEs & Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- System Files ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+pip-log.txt
