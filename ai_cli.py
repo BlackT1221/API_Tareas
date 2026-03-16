@@ -20,6 +20,10 @@ def login_usuario():
         print(f"⚠️ Error de conexión: {e}")
     return None
 
+def eliminar_mi_tarea():
+    #to do: Implementar la logica
+    return None
+
 # --- 2. HERRAMIENTA ---
 def consultar_mis_tareas(token_firebase: str):
     """Consulta las tareas del usuario logueado en la base de datos de Django."""
