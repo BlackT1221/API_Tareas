@@ -94,9 +94,6 @@ class TareaAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, tarea_id=None):
-        """
-        PUT: Actualiza una tarea existente.
-        """
         if not tarea_id:
             return Response({"error": "ID requerido"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -109,19 +106,17 @@ class TareaAPIView(APIView):
 
             tarea_data = doc.to_dict()
 
-            if tarea_data.get('usuario_id') != request.user.id:
+            # CORRECCIÓN: Usar .uid (o .id según tu FirebaseAuthentication)
+            # y validar si el usuario es Instructor para permitirle editar todo si quieres
+            if tarea_data.get('usuario_id') != request.user.uid and request.user.rol != 'instructor':
                 return Response(
                     {"error":"No tienes permiso para editar esta tarea"},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
-            # 1. Validamos los datos nuevos con el Serializador
             serializer = TareasSerializer(data=request.data, partial=True)
-            
             if serializer.is_valid():
-                # 2. Guardamos los cambios en Firestore
                 tarea_ref.update(serializer.validated_data)
-                
                 return Response({
                     "mensaje": f"Tarea {tarea_id} actualizada",
                     "datos": serializer.validated_data
@@ -133,36 +128,29 @@ class TareaAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def delete(self, request, tarea_id):
-        """
-        DELETE: Eliminar una tarea especifica por id. El id viene de la url
-        """
-
         if not tarea_id:
-            return Response({"Error":"Se requiere el id de alguna tarea"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Error":"Se requiere el id"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            # Referencia al documento
             tarea_ref = db.collection('api_tareas').document(tarea_id)
+            doc = tarea_ref.get() # CORRECCIÓN: Guardar el documento en la variable 'doc'
 
-            # Verificar que el doc existe antes de borrarlo
-            if not tarea_ref.get().exists:
+            if not doc.exists:
                 return Response({"error": "No encontrado"}, status=status.HTTP_404_NOT_FOUND)
             
             tarea_data = doc.to_dict()
 
-            if tarea_data.get('usuario_id') != request.user.id:
+            # CORRECCIÓN: Usar .uid y permitir al instructor borrar
+            if tarea_data.get('usuario_id') != request.user.uid and request.user.rol != 'instructor':
                 return Response(
-                    {"error":"No tienes permiso para editar esta tarea"},
+                    {"error":"No tienes permiso para eliminar esta tarea"},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
             tarea_ref.delete()
             return Response(
-                {"mensaje": f"Tarea {tarea_id} se ha eliminado correctamente"},
+                {"mensaje": f"Tarea {tarea_id} eliminada correctamente"},
                 status=status.HTTP_200_OK
             )
         except Exception as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
