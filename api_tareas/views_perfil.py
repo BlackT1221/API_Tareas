@@ -10,10 +10,29 @@ from backend.firebase_config import get_firestore_client
 
 db = get_firestore_client()
 
-class PerfilImagenAPIView(APIView):
+class PerfilAPIView(APIView):
     authentication_classes = [FirebaseAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
+
+    def get(self, request):
+        """ Obtener datos del perfil actual """
+        try:
+            uid = request.user.uid
+            # Buscamos el documento en la colección 'perfiles'
+            perfil_ref = db.collection('perfiles').document(uid).get()
+            
+            if not perfil_ref.exists:
+                return Response({"error": "Perfil no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+            perfil_data = perfil_ref.to_dict()
+            # Añadimos datos que vienen del objeto user (Firebase)
+            perfil_data['email'] = request.user.email
+            perfil_data['rol'] = request.user.rol
+
+            return Response(perfil_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
         file_to_upload = request.FILES.get('imagen')

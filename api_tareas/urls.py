@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import TareaAPIView
 from .views_auth import RegistroAPIView, LoginAPIView
-from .views_perfil import PerfilImagenAPIView
+from .views_perfil import PerfilAPIView
 
 urlpatterns = [
     path('auth/registro/', RegistroAPIView.as_view(), name='api_registro'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('tareas/', TareaAPIView.as_view(), name='api_tareas'),
     path('tareas/<str:tarea_id>/', TareaAPIView.as_view(), name='api_tarea_detalle'),
 
-    path('perfil/foto/', PerfilImagenAPIView.as_view(), name='api_perfil_foto')
+    path('perfil/foto/', PerfilAPIView.as_view(), name='api_perfil_foto'),
+    path('perfil/', PerfilAPIView.as_view(), name='api_perfil'),
 ]
