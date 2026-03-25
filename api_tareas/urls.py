@@ -2,6 +2,7 @@ from django.urls import path
 from .views import TareaAPIView
 from .views_auth import RegistroAPIView, LoginAPIView
 from .views_perfil import PerfilAPIView
+from .views_chat import ChatHistorialAPIView
 
 urlpatterns = [
     path('auth/registro/', RegistroAPIView.as_view(), name='api_registro'),
@@ -12,4 +13,5 @@ urlpatterns = [
 
     path('perfil/foto/', PerfilAPIView.as_view(), name='api_perfil_foto'),
     path('perfil/', PerfilAPIView.as_view(), name='api_perfil'),
+    path('chat/historial/', ChatHistorialAPIView.as_view(), name='api_chat_historial'),
 ]
