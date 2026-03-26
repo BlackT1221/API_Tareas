@@ -9,11 +9,11 @@ db = get_firestore_client()
 
 class ChatHistorialAPIView(APIView):
     authentication_classes = [FirebaseAuthentication]
-    permisson_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated] # <-- Corregido el typo (le faltaba la 'i')
 
     def get(self, request):
         """
-        Devuelve los ultimos 20 mensajes del chat general
+        Devuelve los últimos 20 mensajes del chat general
         """
         try:
             mensaje_ref = db.collection('api_chat_mensajes')\
@@ -25,7 +25,8 @@ class ChatHistorialAPIView(APIView):
                 data = doc.to_dict()
                 historial.append({
                     "id" : doc.id,
-                    "usuario" : data.get("uid_usuario", "anonimo"),
+                    # <-- CORRECCIÓN: Buscamos la llave 'usuario' que es la que guarda el Consumer
+                    "usuario" : data.get("usuario", "anonimo"), 
                     "mensaje" : data.get("mensaje", ""),
                     "timestamp": data.get("timestamp")
                 })
@@ -35,4 +36,5 @@ class ChatHistorialAPIView(APIView):
             return Response(historial, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return response({"error": str(e)}, status=status.HTTP_200_OK)
+            # <-- Corregido: Response con mayúscula y status 500 para errores
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
